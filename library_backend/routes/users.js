@@ -86,7 +86,6 @@ router.put("/:id/move-to-prevtransactions", async (req, res) => {
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
-
       await user.updateOne({ $pull: { activeTransactions: req.params.id } });
       await user.updateOne({ $push: { prevTransactions: req.params.id } });
       res.status(200).json("Added to Previous Transactions");
