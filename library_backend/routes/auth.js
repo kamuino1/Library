@@ -7,17 +7,12 @@ const router = express.Router();
 /* User Registration */
 router.post("/register", async (req, res) => {
   try {
-    // Salting and Hashing the Password
     const salt = await bcrypt.genSalt(10);
     const hashedPass = await bcrypt.hash(req.body.password, salt);
 
-    // Create a new user
     const newuser = new User({
-      userType: req.body.userType,
-      userFullName: req.body.userFullName,
-      admissionId: req.body.admissionId,
-      employeeId: req.body.employeeId,
-      age: req.body.age,
+      fullName: req.body.fullName,
+      username: req.body.username,
       dob: req.body.dob,
       gender: req.body.gender,
       address: req.body.address,
@@ -41,25 +36,19 @@ router.post("/signin", async (req, res) => {
   try {
     console.log(req.body, "req");
 
-    // Find user by admissionId or employeeId
-    const user = req.body.admissionId
-      ? await User.findOne({ admissionId: req.body.admissionId })
-      : await User.findOne({ employeeId: req.body.employeeId });
+    const user = User.findOne({ username: req.body.username });
 
     console.log(user, "user");
 
-    // Check if user exists
     if (!user) {
-      return res.status(404).json("User not found");
+      return res.status(404).json("Không tìm thấy user");
     }
 
-    // Validate password
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass) {
-      return res.status(400).json("Wrong Password");
+      return res.status(400).json("Sai mật khẩu");
     }
 
-    // Return user details
     res.status(200).json(user);
   } catch (err) {
     console.error("Error during user login:", err);

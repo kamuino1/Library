@@ -13,7 +13,7 @@ router.get("/allbooks", async (req, res) => {
   } catch (err) {
     return res
       .status(504)
-      .json({ error: "Failed to fetch books", details: err });
+      .json({ error: "Lỗi lấy tất cả sách:", details: err });
   }
 });
 
@@ -22,13 +22,13 @@ router.get("/getbook/:id", async (req, res) => {
   try {
     const book = await Book.findById(req.params.id).populate("transactions");
     if (!book) {
-      return res.status(404).json({ error: "Book not found" });
+      return res.status(404).json({ error: "Không tìm thấy sách" });
     }
     res.status(200).json(book);
   } catch (err) {
     return res
       .status(500)
-      .json({ error: "Failed to fetch book", details: err });
+      .json({ error: "Lỗi lấy tất cả sách:", details: err });
   }
 });
 
@@ -40,13 +40,11 @@ router.get("/", async (req, res) => {
       categoryName: category,
     }).populate("books");
     if (!categoryData) {
-      return res.status(404).json({ error: "Category not found" });
+      return res.status(404).json({ error: "Không tìm thấy danh mục" });
     }
     res.status(200).json(categoryData);
   } catch (err) {
-    return res
-      .status(504)
-      .json({ error: "Failed to fetch category", details: err });
+    return res.status(504).json({ error: "Lỗi lấy danh mục", details: err });
   }
 });
 
@@ -56,12 +54,11 @@ router.post("/addbook", async (req, res) => {
     try {
       const newBook = new Book({
         bookName: req.body.bookName,
-        alternateTitle: req.body.alternateTitle,
         author: req.body.author,
         bookCountAvailable: req.body.bookCountAvailable,
         language: req.body.language,
         publisher: req.body.publisher,
-        bookStatus: req.body.bookStatus, // Đã sửa lỗi chính tả
+        bookStatus: req.body.bookStatus,
         categories: req.body.categories,
       });
       const book = await newBook.save();
@@ -71,12 +68,10 @@ router.post("/addbook", async (req, res) => {
       );
       res.status(200).json(book);
     } catch (err) {
-      res.status(504).json({ error: "Failed to add book", details: err });
+      res.status(504).json({ error: "Không thể thêm sách", details: err });
     }
   } else {
-    return res
-      .status(403)
-      .json({ error: "You don't have permission to add a book!" });
+    return res.status(403).json({ error: "Bạn không có quyền thêm sách!" });
   }
 });
 
@@ -90,18 +85,16 @@ router.put("/updatebook/:id", async (req, res) => {
         { new: true }
       );
       if (!book) {
-        return res.status(404).json({ error: "Book not found" });
+        return res.status(404).json({ error: "Không tìm thấy sách" });
       }
       res
         .status(200)
-        .json({ message: "Book details updated successfully", book });
+        .json({ message: "Cập nhật thành công thông tin sách", book });
     } catch (err) {
-      res.status(504).json({ error: "Failed to update book", details: err });
+      res.status(504).json({ error: "Lỗi cập nhật sách", details: err });
     }
   } else {
-    return res
-      .status(403)
-      .json({ error: "You don't have permission to update this book!" });
+    return res.status(403).json({ error: "Bạn không có quyền cập nhật sách!" });
   }
 });
 
@@ -111,23 +104,19 @@ router.delete("/removebook/:id", async (req, res) => {
     try {
       const book = await Book.findById(req.params.id);
       if (!book) {
-        return res.status(404).json({ error: "Book not found" });
+        return res.status(404).json({ error: "Không tìm thấy sách" });
       }
       await book.remove();
       await BookCategory.updateMany(
         { _id: { $in: book.categories } },
         { $pull: { books: book._id } }
       );
-      res.status(200).json({ message: "Book has been deleted" });
+      res.status(200).json({ message: "Đã xóa sách" });
     } catch (err) {
-      return res
-        .status(504)
-        .json({ error: "Failed to delete book", details: err });
+      return res.status(504).json({ error: "Lỗi xóa sách", details: err });
     }
   } else {
-    return res
-      .status(403)
-      .json({ error: "You don't have permission to delete this book!" });
+    return res.status(403).json({ error: "Bạn không có quyền xóa sách!" });
   }
 });
 

@@ -6,7 +6,7 @@ const BookTransactionSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    borrowerId: {
+    userId: {
       type: String,
       require: true,
     },
@@ -14,7 +14,7 @@ const BookTransactionSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    borrowerName: {
+    userName: {
       type: String,
       require: true,
     },

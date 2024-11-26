@@ -2,27 +2,15 @@ import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema(
   {
-    userType: {
+    fullName: {
       type: String,
-      require: true,
-    },
-    userFullName: {
-      type: String,
-      require: true,
       unique: true,
     },
-    admissionId: {
+    username: {
       type: String,
+      require: true,
       min: 3,
       max: 15,
-    },
-    employeeId: {
-      type: String,
-      min: 3,
-      max: 15,
-    },
-    age: {
-      type: Number,
     },
     gender: {
       type: String,
@@ -36,7 +24,6 @@ const UserSchema = new mongoose.Schema(
     },
     mobileNumber: {
       type: Number,
-      require: true,
     },
     photo: {
       type: String,
@@ -51,11 +38,7 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       require: true,
-      min: 6,
-    },
-    points: {
-      type: Number,
-      default: 0,
+      min: 3,
     },
     activeTransactions: [
       {

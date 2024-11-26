@@ -11,7 +11,7 @@ router.get("/allcategories", async (req, res) => {
   } catch (err) {
     return res
       .status(504)
-      .json({ error: "Failed to fetch categories", details: err });
+      .json({ error: "Lỗi lấy tất cả danh mục", details: err });
   }
 });
 
@@ -25,9 +25,7 @@ router.post("/addcategory", async (req, res) => {
     const category = await newCategory.save();
     res.status(200).json(category);
   } catch (err) {
-    return res
-      .status(504)
-      .json({ error: "Failed to add category", details: err });
+    return res.status(504).json({ error: "Lỗi thêm danh mục", details: err });
   }
 });
 
@@ -36,15 +34,13 @@ router.post("/deletecategory/:id", async (req, res) => {
   try {
     const category = await BookCategory.findById(req.params.id);
     if (!category) {
-      return res.status(404).json({ error: "category not found" });
+      return res.status(404).json({ error: "Danh mục không tìm thấy" });
     }
 
     await BookCategory.findByIdAndDelete(req.params.id);
-    res.status(200).json("category has been deleted");
+    res.status(200).json("Danh mục đã xóa");
   } catch (err) {
-    return res
-      .status(403)
-      .json({ error: "Failed to delete category", details: err });
+    return res.status(403).json({ error: "Lỗi xóa danh mục", details: err });
   }
 });
 
@@ -54,11 +50,11 @@ router.post("/updatecategory/:id", async (req, res) => {
     await BookCategory.findByIdAndUpdate(req.params.id, {
       $set: req.body,
     });
-    res.status(200).json("category has been update");
+    res.status(200).json("Danh mục đã cập nhật");
   } catch (err) {
     return res
       .status(403)
-      .json({ error: "Failed to update category", details: err });
+      .json({ error: "Lỗi cập nhật danh mục", details: err });
   }
 });
 

@@ -12,7 +12,7 @@ router.get("/getuser/:id", async (req, res) => {
       .populate("prevTransactions");
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "Không tìm thấy người dùng" });
     }
 
     const { password, updatedAt, ...other } = user._doc;
@@ -50,35 +50,35 @@ router.put("/updateuser/:id", async (req, res) => {
       await User.findByIdAndUpdate(req.params.id, {
         $set: req.body,
       });
-      res.status(200).json("Account has been updated");
+      res.status(200).json("Tài khoản đã được cập nhật");
     } catch (err) {
       res.status(500).json(err);
     }
   } else {
-    res.status(403).json("You can update only your account!");
+    res.status(403).json("Bạn chỉ có thể cập nhật tài khoản của bạn!");
   }
 });
 
-/* Thêm giao dịch vào danh sách giao dịch đang hoạt động */
+/* Thêm phiên mượn sách vào danh sách phiên mượn sách đang hoạt động */
 router.put("/:id/move-to-activetransactions", async (req, res) => {
   if (req.body.isAdmin) {
     try {
       const user = await User.findById(req.body.userId);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: "Không tìm thấy người dùng" });
       }
 
       await user.updateOne({ $push: { activeTransactions: req.params.id } });
-      res.status(200).json("Added to Active Transaction");
+      res.status(200).json("Đã được thêm vào phiên mượn sách");
     } catch (err) {
       res.status(500).json(err);
     }
   } else {
-    res.status(403).json("Only Admin can add a transaction");
+    res.status(403).json("Chỉ quản trị viên mới được thêm phiên mượn sách");
   }
 });
 
-/* Di chuyển giao dịch từ danh sách đang hoạt động sang danh sách đã hoàn thành */
+/* Di chuyển phiên mượn sách từ danh sách đang hoạt động sang danh sách đã hoàn thành */
 router.put("/:id/move-to-prevtransactions", async (req, res) => {
   if (req.body.isAdmin) {
     try {
@@ -88,12 +88,12 @@ router.put("/:id/move-to-prevtransactions", async (req, res) => {
       }
       await user.updateOne({ $pull: { activeTransactions: req.params.id } });
       await user.updateOne({ $push: { prevTransactions: req.params.id } });
-      res.status(200).json("Added to Previous Transactions");
+      res.status(200).json("Đã thêm vào phiên mượn sách hoàn thành");
     } catch (err) {
       res.status(500).json(err);
     }
   } else {
-    res.status(403).json("Only Admin can do this");
+    res.status(403).json("Chỉ quản trị viên được chuyển");
   }
 });
 
@@ -103,16 +103,16 @@ router.delete("/deleteuser/:id", async (req, res) => {
     try {
       const user = await User.findById(req.params.id);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: "Không tìm thấy người dùng" });
       }
 
       await User.findByIdAndDelete(req.params.id);
-      res.status(200).json("Account has been deleted");
+      res.status(200).json("Tài khoản đã bị xóa");
     } catch (err) {
       res.status(500).json(err);
     }
   } else {
-    res.status(403).json("You can delete only your account!");
+    res.status(403).json("Chỉ được xóa tài khoản của bạn!");
   }
 });
 

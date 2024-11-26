@@ -6,10 +6,6 @@ const BookSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    alternateTitle: {
-      type: String,
-      default: "",
-    },
     author: {
       type: String,
       require: true,
@@ -25,6 +21,7 @@ const BookSchema = new mongoose.Schema(
     bookCountAvailable: {
       type: Number,
       require: true,
+      default: 1,
     },
     bookStatus: {
       type: String,
