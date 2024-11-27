@@ -27,12 +27,10 @@ async function deleteAllUsers() {
 // Hàm tạo user mới
 async function createUser() {
   try {
-    const hashedPassword = await bcrypt.hash("admina", 10);
+    const hashedPassword = await bcrypt.hash("tien012369", 10);
     const user = new User({
-      userType: "admin",
-      employeeId: "admin",
-      userFullName: "admin",
-      email: "admin1@example.com",
+      username: "admin",
+      email: "admin@example.com",
       password: hashedPassword, // Lưu mật khẩu đã mã hóa
       isAdmin: true,
     });
@@ -42,7 +40,7 @@ async function createUser() {
   } catch (err) {
     console.error("Error creating user:", err);
   } finally {
-    mongoose.connection.close(); // Đóng kết nối sau khi hoàn tất
+    setTimeout(() => mongoose.connection.close(), 1000);
   }
 }
 
@@ -57,9 +55,22 @@ async function addCate() {
   } catch (err) {
     console.error("Error creating user:", err);
   } finally {
-    mongoose.connection.close(); // Đóng kết nối sau khi hoàn tất
+    setTimeout(() => mongoose.connection.close(), 1000); // Đóng kết nối sau khi hoàn tất
+  }
+}
+
+async function migrate() {
+  try {
+    // Thêm trường "isActive" với giá trị mặc định là true
+    await User.updateMany({}, { $set: { isActive: true } });
+    console.log("Migration completed!");
+  } catch (err) {
+    console.error("Migration error:", err);
+  } finally {
+    mongoose.connection.close();
   }
 }
 
 // Gọi hàm để tạo user
+createUser();
 addCate();

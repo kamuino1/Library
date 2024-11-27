@@ -2,12 +2,9 @@ import React, { useContext, useState } from "react";
 import "./Signin.css";
 import axios from "axios";
 import { AuthContext } from "../Context/AuthContext.js";
-import Switch from "@mui/material/Switch";
 
 function Signin() {
-  const [isStudent, setIsStudent] = useState(true);
-  const [admissionId, setAdmissionId] = useState();
-  const [employeeId, setEmployeeId] = useState();
+  const [username, setUsername] = useState();
   const [password, setPassword] = useState();
   const [error, setError] = useState("");
   const { dispatch } = useContext(AuthContext);
@@ -27,9 +24,7 @@ function Signin() {
 
   const handleForm = (e) => {
     e.preventDefault();
-    isStudent
-      ? loginCall({ admissionId, password }, dispatch)
-      : loginCall({ employeeId, password }, dispatch);
+    loginCall({ username, password }, dispatch);
   };
 
   return (
@@ -38,30 +33,22 @@ function Signin() {
         <form onSubmit={handleForm}>
           <h2 className="signin-title"> Log in</h2>
           <p className="line"></p>
-          <div className="persontype-question">
-            <p>Are you a Staff member ?</p>
-            <Switch onChange={() => setIsStudent(!isStudent)} color="primary" />
-          </div>
           <div className="error-message">
             <p>{error}</p>
           </div>
           <div className="signin-fields">
-            <label htmlFor={isStudent ? "admissionId" : "employeeId"}>
+            <label htmlFor={"username"}>
               {" "}
-              <b>{isStudent ? "Admission ID" : "Employee ID"}</b>
+              <b>{"username"}</b>
             </label>
             <input
               className="signin-textbox"
               type="text"
-              placeholder={
-                isStudent ? "Enter Admission ID" : "Enter Employee ID"
-              }
-              name={isStudent ? "admissionId" : "employeeId"}
+              placeholder={"Enter Username"}
+              name={"username"}
               required
               onChange={(e) => {
-                isStudent
-                  ? setAdmissionId(e.target.value)
-                  : setEmployeeId(e.target.value);
+                setUsername(e.target.value);
               }}
             />
             <label htmlFor="password">

@@ -5,7 +5,7 @@ import Book from "../models/Book.js";
 
 const router = express.Router();
 
-router.get("/most-borrowed-books", async (req, res) => {
+router.get("/list-most-borrowed-books", async (req, res) => {
   try {
     const mostBorrowedBooks = await BookTransaction.aggregate([
       {
@@ -45,7 +45,7 @@ router.get("/most-borrowed-books", async (req, res) => {
   }
 });
 
-router.get("/most-active-users", async (req, res) => {
+router.get("/list-most-active-users", async (req, res) => {
   try {
     const mostActiveUsers = await BookTransaction.aggregate([
       {
@@ -84,3 +84,5 @@ router.get("/most-active-users", async (req, res) => {
       .json({ error: "Lỗi khi thống kê danh sách người mượn nhiều sách nhất" });
   }
 });
+
+export default router;
