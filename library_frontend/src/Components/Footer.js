@@ -1,75 +1,43 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Card, Grid, Image } from "semantic-ui-react";
-import Footer from "../Components/Footer";
+import React from "react";
+import { Container, Grid, Segment, Header, List } from "semantic-ui-react";
 
-function Home() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [books, setAllBooks] = useState([]);
-  const API_URL = process.env.REACT_APP_API_URL;
-
-  useEffect(() => {
-    const getallBooks = async () => {
-      try {
-        const response = await axios.get(API_URL + "api/books/allbooks");
-        console.log(response.data);
-        setAllBooks(response.data);
-      } catch (error) {
-        console.error("Lỗi khi lấy sách:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getallBooks();
-  }, [API_URL]);
-
+function Footer() {
   return (
-    <div id="home">
-      <div className="container mt-5">
-        {isLoading ? (
-          <div>Đang tải sách...</div>
-        ) : (
-          <Grid container stackable columns={3}>
-            {books.map((book) => (
-              <Grid.Column key={book._id}>
-                <Card>
-                  <Image
-                    src={book.image || "https://via.placeholder.com/150"} // Ảnh mặc định nếu không có ảnh
-                    wrapped
-                    ui={false}
-                  />
-                  <Card.Content>
-                    <Card.Header>{book.bookName}</Card.Header>
-                    <Card.Meta>
-                      <span className="date">{book.author}</span>
-                    </Card.Meta>
-                    <Card.Description>
-                      <strong>Publisher:</strong>{" "}
-                      {book.publisher || "Chưa có nhà xuất bản"}
-                    </Card.Description>
-                    <Card.Description>
-                      <strong>Available:</strong> {book.bookCountAvailable}{" "}
-                      copy(s)
-                    </Card.Description>
-                    <Card.Description>
-                      <strong>Categories:</strong>{" "}
-                      {book.categories && book.categories.length > 0
-                        ? book.categories
-                            .map((category) => category.categoryName)
-                            .join(", ")
-                        : "Chưa có thể loại"}
-                    </Card.Description>
-                  </Card.Content>
-                </Card>
-              </Grid.Column>
-            ))}
-          </Grid>
-        )}
-      </div>
-      <Footer />
-    </div>
+    <Segment inverted vertical style={{ padding: "5em 0" }}>
+      <Container>
+        <Grid divided inverted stackable>
+          <Grid.Row>
+            <Grid.Column width={8}>
+              <Header as="h4" inverted>
+                Contact Us
+              </Header>
+              <List link inverted>
+                <List.Item as="a">Librarian Management</List.Item>
+                <List.Item as="a">Pham Anh Tien</List.Item>
+                <List.Item as="a">
+                  <b>Email:</b> TIENPA.B19CN581@stu.ptit.edu.vn
+                </List.Item>
+              </List>
+            </Grid.Column>
+
+            <Grid.Column width={8}>
+              <Header as="h4" inverted>
+                Connect With Us
+              </Header>
+              <List link inverted>
+                <List.Item as="a">Facebook</List.Item>
+                <List.Item as="a">Instagram</List.Item>
+                <List.Item as="a">Twitter</List.Item>
+              </List>
+            </Grid.Column>
+          </Grid.Row>
+        </Grid>
+        <Segment inverted vertical style={{ textAlign: "center" }}>
+          <p>&#169; 2024 All rights reserved</p>
+        </Segment>
+      </Container>
+    </Segment>
   );
 }
 
-export default Home;
+export default Footer;

@@ -1,19 +1,15 @@
-html,
-body {
-  height: 100%;
-  margin: 0;
-}
-
-#home {
+/* home.css */
+.home-container {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.container {
+.content-container {
   flex-grow: 1;
+  margin-top: 20px;
 }
 
-.footer {
-  margin-top: auto;
+.footer-container {
+  margin-top: 100px;
 }
