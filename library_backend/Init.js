@@ -45,10 +45,10 @@ async function createUser() {
 }
 
 /* Thêm danh mục mới */
-async function addCate() {
+async function addCate(name) {
   try {
     const newCategory = new BookCategory({
-      categoryName: "Chính kịch",
+      categoryName: name,
     });
 
     const category = await newCategory.save();
@@ -72,5 +72,6 @@ async function migrate() {
 }
 
 // Gọi hàm để tạo user
-createUser();
-addCate();
+addCate("Sicence Fiction");
+addCate("Drama");
+addCate("Horor");

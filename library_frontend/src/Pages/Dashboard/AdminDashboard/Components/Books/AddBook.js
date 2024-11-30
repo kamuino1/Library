@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import "../AdminDashboard.css";
+import "../../AdminDashboard.css";
 import axios from "axios";
-import { AuthContext } from "../../../../Context/AuthContext";
-import { Dropdown } from "react-bootstrap";
+import { AuthContext } from "../../../../../Context/AuthContext";
+import { Dropdown } from "semantic-ui-react";
+import { Link } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function AddBook() {
   const API_URL = process.env.REACT_APP_API_URL;
@@ -10,7 +12,6 @@ function AddBook() {
   const { user } = useContext(AuthContext);
 
   const [bookName, setBookName] = useState("");
-  const [alternateTitle, setAlternateTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [bookCountAvailable, setBookCountAvailable] = useState(null);
   const [language, setLanguage] = useState("");
@@ -44,7 +45,6 @@ function AddBook() {
     setIsLoading(true);
     const BookData = {
       bookName: bookName,
-      alternateTitle: alternateTitle,
       author: author,
       bookCountAvailable: bookCountAvailable,
       language: language,
@@ -62,13 +62,12 @@ function AddBook() {
       }
       setRecentAddedBooks([response.data, ...recentAddedBooks]);
       setBookName("");
-      setAlternateTitle("");
       setAuthor("");
       setBookCountAvailable(null);
       setLanguage("");
       setPublisher("");
       setSelectedCategories([]);
-      alert("Book Added Successfully 🎉");
+      alert("Thêm sách thành công");
     } catch (err) {
       console.log(err);
     }
@@ -86,6 +85,11 @@ function AddBook() {
   return (
     <div>
       <p className="dashboard-option-title">Add a Book</p>
+      <div className="mt-3 mb-3 d-flex">
+        <Link to="/dashboard@admin/managebook">
+          <button className="add-book-button ml-3">Manage Books</button>
+        </Link>
+      </div>
       <div className="dashboard-title-line"></div>
       <form className="addbook-form" onSubmit={addBook}>
         <div className="mb-3">
@@ -101,21 +105,6 @@ function AddBook() {
               setBookName(e.target.value);
             }}
             required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label" htmlFor="alternateTitle">
-            Alternate Title
-          </label>
-          <input
-            className="form-control"
-            type="text"
-            name="alternateTitle"
-            value={alternateTitle}
-            onChange={(e) => {
-              setAlternateTitle(e.target.value);
-            }}
           />
         </div>
 
@@ -192,9 +181,11 @@ function AddBook() {
             multiple
             search
             selection
+            required
             options={allCategories}
             value={selectedCategories}
             onChange={(event, value) => setSelectedCategories(value.value)}
+            renderLabel={(label) => label.label}
           />
         </div>
 

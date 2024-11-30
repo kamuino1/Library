@@ -1,11 +1,8 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
-import AddTransaction from "./Components/AddTransaction";
-import AddMember from "./Components/AddMember";
-import AddBook from "./Components/AddBook";
 
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BookIcon from "@mui/icons-material/Book";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -13,10 +10,9 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import { IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import GetMember from "./Components/GetMember";
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
-import Return from "./Components/Return";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import { Outlet } from "react-router-dom";
 
 /* Semantic UI Dropdown Styles Import */
 const styleLink = document.createElement("link");
@@ -26,10 +22,10 @@ styleLink.href =
 document.head.appendChild(styleLink);
 
 function AdminDashboard() {
-  const [active, setActive] = useState("addbooks");
+  const [active, setActive] = useState("managebook");
   const [sidebar, setSidebar] = useState(false);
 
-  /* Logout Function*/
+  // Logout function
   const logout = () => {
     localStorage.removeItem("user");
     window.location.reload();
@@ -56,110 +52,74 @@ function AdminDashboard() {
         >
           <div className="dashboard-logo">
             <LibraryBooksIcon style={{ fontSize: 50 }} />
-            <p className="logo-name">LCMS</p>
+            <p className="logo-name">Library M</p>
           </div>
-          <p
-            className={`dashboard-option ${
-              active === "profile" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("profile");
-              setSidebar(false);
-            }}
-          >
-            <AccountCircleIcon className="dashboard-option-icon" /> Profile
-          </p>
-          <p
-            className={`dashboard-option ${
-              active === "addbook" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("addbook");
-              setSidebar(false);
-            }}
-          >
-            <BookIcon className="dashboard-option-icon" />
-            Add Book
-          </p>
-          <p
-            className={`dashboard-option ${
-              active === "addtransaction" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("addtransaction");
-              setSidebar(false);
-            }}
-          >
-            <ReceiptIcon className="dashboard-option-icon" /> Add Transaction{" "}
-          </p>
-          <p
-            className={`dashboard-option ${
-              active === "getmember" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("getmember");
-              setSidebar(false);
-            }}
-          >
-            <AccountBoxIcon className="dashboard-option-icon" /> Get Member{" "}
-          </p>
-          <p
-            className={`dashboard-option ${
-              active === "addmember" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("addmember");
-              setSidebar(false);
-            }}
-          >
-            <PersonAddIcon className="dashboard-option-icon" /> Add Member{" "}
-          </p>
-          <p
-            className={`dashboard-option ${
-              active === "returntransaction" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("returntransaction");
-              setSidebar(false);
-            }}
-          >
-            <AssignmentReturnIcon className="dashboard-option-icon" /> Return{" "}
-          </p>
-          <p className={`dashboard-option`} onClick={logout}>
-            <PowerSettingsNewIcon className="dashboard-option-icon" /> Log out{" "}
+
+          <Link to="managebook">
+            <p
+              className={`dashboard-option ${
+                active === "managebook" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("managebook")}
+            >
+              <BookIcon className="dashboard-option-icon" /> Quản lý sách
+            </p>
+          </Link>
+
+          <Link to="addtransaction">
+            <p
+              className={`dashboard-option ${
+                active === "addtransaction" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("addtransaction")}
+            >
+              <ReceiptIcon className="dashboard-option-icon" /> Thêm phiên mượn
+            </p>
+          </Link>
+
+          <Link to="getmember">
+            <p
+              className={`dashboard-option ${
+                active === "getmember" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("getmember")}
+            >
+              <AccountBoxIcon className="dashboard-option-icon" /> Quản lý thành
+              viên
+            </p>
+          </Link>
+
+          <Link to="addmember">
+            <p
+              className={`dashboard-option ${
+                active === "addmember" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("addmember")}
+            >
+              <PersonAddIcon className="dashboard-option-icon" /> Thêm thành
+              viên
+            </p>
+          </Link>
+
+          <Link to="returntransaction">
+            <p
+              className={`dashboard-option ${
+                active === "returntransaction" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("returntransaction")}
+            >
+              <AssignmentReturnIcon className="dashboard-option-icon" /> Danh
+              sách trả sách
+            </p>
+          </Link>
+
+          <p className="dashboard-option" onClick={logout}>
+            <PowerSettingsNewIcon className="dashboard-option-icon" /> Log out
           </p>
         </div>
+
         <div className="dashboard-option-content">
-          <div
-            className="dashboard-addbooks-content"
-            style={active !== "addbook" ? { display: "none" } : {}}
-          >
-            <AddBook />
-          </div>
-          <div
-            className="dashboard-transactions-content"
-            style={active !== "addtransaction" ? { display: "none" } : {}}
-          >
-            <AddTransaction />
-          </div>
-          <div
-            className="dashboard-addmember-content"
-            style={active !== "addmember" ? { display: "none" } : {}}
-          >
-            <AddMember />
-          </div>
-          <div
-            className="dashboard-addmember-content"
-            style={active !== "getmember" ? { display: "none" } : {}}
-          >
-            <GetMember />
-          </div>
-          <div
-            className="dashboard-addmember-content"
-            style={active !== "returntransaction" ? { display: "none" } : {}}
-          >
-            <Return />
-          </div>
+          <Outlet />
         </div>
       </div>
     </div>

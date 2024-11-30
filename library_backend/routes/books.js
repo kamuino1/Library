@@ -3,24 +3,26 @@ import Book from "../models/Book.js";
 import BookCategory from "../models/BookCategory.js";
 const router = express.Router();
 
-/* Lấy tất cả các sách */
 router.get("/allbooks", async (req, res) => {
   try {
     const books = await Book.find({})
-      .populate("transactions")
+      .populate({
+        path: "categories",
+        select: "categoryName", // Chỉ lấy categoryName từ BookCategory
+      })
       .sort({ _id: -1 });
     res.status(200).json(books);
   } catch (err) {
-    return res
-      .status(504)
-      .json({ error: "Lỗi lấy tất cả sách:", details: err });
+    res.status(504).json({ error: "Lỗi lấy tất cả sách", details: err });
   }
 });
 
 /* Lấy sách theo ID */
 router.get("/getbook/:id", async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id).populate("transactions");
+    const book = await Book.findById(req.params.id)
+      .populate("transactions")
+      .populate("categories", "categoryName");
     if (!book) {
       return res.status(404).json({ error: "Không tìm thấy sách" });
     }
@@ -79,14 +81,27 @@ router.post("/addbook", async (req, res) => {
 router.put("/updatebook/:id", async (req, res) => {
   if (req.body.isAdmin) {
     try {
+      if (!Array.isArray(req.body.categories)) {
+        return res
+          .status(400)
+          .json({ error: "Danh mục phải là một mảng ID hợp lệ!" });
+      }
+
       const book = await Book.findByIdAndUpdate(
         req.params.id,
         { $set: req.body },
         { new: true }
       );
+
       if (!book) {
         return res.status(404).json({ error: "Không tìm thấy sách" });
       }
+
+      await BookCategory.updateMany(
+        { _id: { $in: book.categories } },
+        { $addToSet: { books: book._id } }
+      );
+
       res
         .status(200)
         .json({ message: "Cập nhật thành công thông tin sách", book });

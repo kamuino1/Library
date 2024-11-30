@@ -1,81 +1,152 @@
-import { React, useState } from "react";
+import React, { useState, useContext } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Button,
+  Menu,
+  MenuItem,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { Link } from "react-router-dom";
-import "./css/Header.css";
-
+import { AuthContext } from "../Context/AuthContext.js";
 import MenuIcon from "@mui/icons-material/Menu";
 import ClearIcon from "@mui/icons-material/Clear";
 
 function Header() {
-  const [menutoggle, setMenutoggle] = useState(false);
+  const { user } = useContext(AuthContext);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuToggle, setMenuToggle] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const Toggle = () => {
-    setMenutoggle(!menutoggle);
-  };
-
-  const closeMenu = () => {
-    setMenutoggle(false);
-  };
+  const handleMenuClick = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleMenuToggle = () => setMenuToggle(!menuToggle);
 
   return (
-    <div className="header">
-      <div className="logo-nav">
-        <Link to="/">
-          <a href="#home">LIBRARY</a>
-        </Link>
-      </div>
-      <div className="nav-right">
-        <input
-          className="search-input"
-          type="text"
-          placeholder="Search a Book"
-        />
-        <ul className={menutoggle ? "nav-options active" : "nav-options"}>
-          <li
-            className="option"
-            onClick={() => {
-              closeMenu();
-            }}
-          >
-            <Link to="/">
-              <a href="#home">Home</a>
-            </Link>
-          </li>
-          <li
-            className="option"
-            onClick={() => {
-              closeMenu();
-            }}
-          >
-            <Link to="/books">
-              <a href="#books">Books</a>
-            </Link>
-          </li>
-          <li
-            className="option"
-            onClick={() => {
-              closeMenu();
-            }}
-          >
-            <Link to="/signin">
-              <a href="signin">SignIn</a>
-            </Link>
-          </li>
-        </ul>
-      </div>
+    <AppBar position="sticky" sx={{ backgroundColor: "#333" }}>
+      <Toolbar>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Link to="/" style={{ textDecoration: "none", color: "white" }}>
+            LIBRARY
+          </Link>
+        </Typography>
 
-      <div
-        className="mobile-menu"
-        onClick={() => {
-          Toggle();
-        }}
-      >
-        {menutoggle ? (
-          <ClearIcon className="menu-icon" style={{ fontSize: 40 }} />
+        {isMobile ? (
+          <>
+            <IconButton color="inherit" onClick={handleMenuToggle}>
+              {menuToggle ? <ClearIcon /> : <MenuIcon />}
+            </IconButton>
+            {menuToggle && (
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleMenuClose}>
+                  <Link
+                    to="/books"
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
+                    Books
+                  </Link>
+                </MenuItem>
+                {!user ? (
+                  <>
+                    <MenuItem onClick={handleMenuClose}>
+                      <Link
+                        to="/signin"
+                        style={{ textDecoration: "none", color: "black" }}
+                      >
+                        Sign In
+                      </Link>
+                    </MenuItem>
+                    <MenuItem onClick={handleMenuClose}>
+                      <Link
+                        to="/signup"
+                        style={{ textDecoration: "none", color: "black" }}
+                      >
+                        Sign Up
+                      </Link>
+                    </MenuItem>
+                  </>
+                ) : (
+                  <MenuItem onClick={handleMenuClose}>
+                    {user.isAdmin ? (
+                      <Link
+                        to="/dashboard@admin"
+                        style={{ textDecoration: "none", color: "black" }}
+                      >
+                        Admin Dashboard
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/dashboard@member"
+                        style={{ textDecoration: "none", color: "black" }}
+                      >
+                        Member Dashboard
+                      </Link>
+                    )}
+                  </MenuItem>
+                )}
+              </Menu>
+            )}
+          </>
         ) : (
-          <MenuIcon className="menu-icon" style={{ fontSize: 40 }} />
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Button color="inherit">
+              <Link
+                to="/books"
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                Books
+              </Link>
+            </Button>
+            {!user ? (
+              <>
+                <Button color="inherit">
+                  <Link
+                    to="/signin"
+                    style={{ textDecoration: "none", color: "white" }}
+                  >
+                    Sign In
+                  </Link>
+                </Button>
+                <Button color="inherit">
+                  <Link
+                    to="/signup"
+                    style={{ textDecoration: "none", color: "white" }}
+                  >
+                    Sign Up
+                  </Link>
+                </Button>
+              </>
+            ) : (
+              <Button color="inherit">
+                {user.isAdmin ? (
+                  <Link
+                    to="/dashboard@admin"
+                    style={{ textDecoration: "none", color: "white" }}
+                  >
+                    Admin Dashboard
+                  </Link>
+                ) : (
+                  <Link
+                    to="/dashboard@member"
+                    style={{ textDecoration: "none", color: "white" }}
+                  >
+                    Member Dashboard
+                  </Link>
+                )}
+              </Button>
+            )}
+          </div>
         )}
-      </div>
-    </div>
+      </Toolbar>
+    </AppBar>
   );
 }
 

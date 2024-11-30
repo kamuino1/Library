@@ -7,7 +7,7 @@
 
 .footer-data {
   display: flex;
-  justify-content: space-around;
+  justify-content: left;
 }
 
 .contact-details {

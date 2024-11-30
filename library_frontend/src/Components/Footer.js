@@ -1,64 +1,75 @@
-import React from "react";
-import "./css/Footer.css";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Card, Grid, Image } from "semantic-ui-react";
+import Footer from "../Components/Footer";
 
-import TwitterIcon from "@mui/icons-material/Twitter";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import TelegramIcon from "@mui/icons-material/Telegram";
-import InstagramIcon from "@mui/icons-material/Instagram";
+function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [books, setAllBooks] = useState([]);
+  const API_URL = process.env.REACT_APP_API_URL;
 
-function Footer() {
+  useEffect(() => {
+    const getallBooks = async () => {
+      try {
+        const response = await axios.get(API_URL + "api/books/allbooks");
+        console.log(response.data);
+        setAllBooks(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy sách:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getallBooks();
+  }, [API_URL]);
+
   return (
-    <div className="footer">
-      <div>
-        <div className="footer-data">
-          <div className="contact-details">
-            <h1>Contact Us</h1>
-            <p>Librarian</p>
-            <p>Government School</p>
-            <p>Visakhapatnam-530041</p>
-            <p>Andhra Pradesh</p>
-            <p>India</p>
-            <p>
-              <b>Email:</b>example@gmail.com
-            </p>
-          </div>
-          <div className="usefull-links">
-            <h1>Usefull Links</h1>
-            <a href="#home">Link-1</a>
-            <a href="#home">Link-1</a>
-            <a href="#home">Link-1</a>
-            <a href="#home">Link-1</a>
-          </div>
-          <div className="librarian-details">
-            <h1>Librarian</h1>
-            <p>Name</p>
-            <p>Education</p>
-            <p>Contact: +91 9123456787</p>
-          </div>
-        </div>
-        <div className="contact-social">
-          <a href="#home" className="social-icon">
-            <TwitterIcon style={{ fontSize: 40, color: "rgb(283,83,75)" }} />
-          </a>
-          <a href="#home" className="social-icon">
-            <LinkedInIcon style={{ fontSize: 40, color: "rgb(283,83,75)" }} />
-          </a>
-          <a href="#home" className="social-icon">
-            <TelegramIcon style={{ fontSize: 40, color: "rgb(283,83,75)" }} />
-          </a>
-          <a href="#home" className="social-icon">
-            <InstagramIcon style={{ fontSize: 40, color: "rgb(283,83,75)" }} />
-          </a>
-        </div>
+    <div id="home">
+      <div className="container mt-5">
+        {isLoading ? (
+          <div>Đang tải sách...</div>
+        ) : (
+          <Grid container stackable columns={3}>
+            {books.map((book) => (
+              <Grid.Column key={book._id}>
+                <Card>
+                  <Image
+                    src={book.image || "https://via.placeholder.com/150"} // Ảnh mặc định nếu không có ảnh
+                    wrapped
+                    ui={false}
+                  />
+                  <Card.Content>
+                    <Card.Header>{book.bookName}</Card.Header>
+                    <Card.Meta>
+                      <span className="date">{book.author}</span>
+                    </Card.Meta>
+                    <Card.Description>
+                      <strong>Publisher:</strong>{" "}
+                      {book.publisher || "Chưa có nhà xuất bản"}
+                    </Card.Description>
+                    <Card.Description>
+                      <strong>Available:</strong> {book.bookCountAvailable}{" "}
+                      copy(s)
+                    </Card.Description>
+                    <Card.Description>
+                      <strong>Categories:</strong>{" "}
+                      {book.categories && book.categories.length > 0
+                        ? book.categories
+                            .map((category) => category.categoryName)
+                            .join(", ")
+                        : "Chưa có thể loại"}
+                    </Card.Description>
+                  </Card.Content>
+                </Card>
+              </Grid.Column>
+            ))}
+          </Grid>
+        )}
       </div>
-      <div className="copyright-details">
-        <p className="footer-copyright">
-          &#169; 2024 copyright all right reserved
-          <br />
-        </p>
-      </div>
+      <Footer />
     </div>
   );
 }
 
-export default Footer;
+export default Home;
