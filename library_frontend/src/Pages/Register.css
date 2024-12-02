@@ -1,4 +1,3 @@
-/* Đảm bảo trang đăng ký sử dụng layout và style tương tự như trang đăng nhập */
 .register-container {
   display: grid;
   place-items: center;

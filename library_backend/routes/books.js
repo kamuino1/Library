@@ -60,6 +60,7 @@ router.post("/addbook", async (req, res) => {
         bookCountAvailable: req.body.bookCountAvailable,
         language: req.body.language,
         publisher: req.body.publisher,
+        photo_url: req.body.photo_url,
         bookStatus: req.body.bookStatus,
         categories: req.body.categories,
       });
@@ -81,12 +82,6 @@ router.post("/addbook", async (req, res) => {
 router.put("/updatebook/:id", async (req, res) => {
   if (req.body.isAdmin) {
     try {
-      if (!Array.isArray(req.body.categories)) {
-        return res
-          .status(400)
-          .json({ error: "Danh mục phải là một mảng ID hợp lệ!" });
-      }
-
       const book = await Book.findByIdAndUpdate(
         req.params.id,
         { $set: req.body },

@@ -18,6 +18,10 @@ const BookSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    photo_url: {
+      type: String,
+      default: "",
+    },
     bookCountAvailable: {
       type: Number,
       require: true,

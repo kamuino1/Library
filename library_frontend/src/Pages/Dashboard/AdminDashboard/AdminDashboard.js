@@ -52,7 +52,7 @@ function AdminDashboard() {
         >
           <div className="dashboard-logo">
             <LibraryBooksIcon style={{ fontSize: 50 }} />
-            <p className="logo-name">Library M</p>
+            <p className="logo-name">Library Management</p>
           </div>
 
           <Link to="managebook">

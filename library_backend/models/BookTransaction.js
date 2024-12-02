@@ -14,7 +14,7 @@ const BookTransactionSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    userName: {
+    username: {
       type: String,
       require: true,
     },

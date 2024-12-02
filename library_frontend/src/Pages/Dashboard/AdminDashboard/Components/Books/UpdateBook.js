@@ -6,7 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../../../Context/AuthContext";
 
 function UpdateBook() {
-  const { id } = useParams(); // Lấy ID từ URL
+  const { id } = useParams();
   const API_URL = process.env.REACT_APP_API_URL;
   const { user } = useContext(AuthContext);
 
@@ -16,22 +16,22 @@ function UpdateBook() {
     bookName: "",
     author: "",
     bookCountAvailable: "",
+    photo_url: "",
     language: "",
     publisher: "",
-    categories: [], // Categories sẽ được lưu tại đây
+    categories: [],
   });
-  const navigate = useNavigate(); // Khai báo useNavigate ở đây
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Lấy tất cả các categories từ API
     const getAllCategories = async () => {
       try {
         const response = await axios.get(
           API_URL + "api/categories/allcategories"
         );
         const all_categories = response.data.map((category) => ({
-          value: `${category._id}`, // Giá trị dùng trong dropdown
-          label: `${category.categoryName}`, // Tên category hiển thị
+          value: `${category._id}`,
+          label: `${category.categoryName}`,
         }));
         setAllCategories(all_categories);
       } catch (err) {
@@ -42,16 +42,15 @@ function UpdateBook() {
   }, [API_URL]);
 
   useEffect(() => {
-    // Lấy dữ liệu sách theo ID
     const getBookData = async () => {
       try {
         const response = await axios.get(`${API_URL}api/books/getbook/${id}`);
         const { categories, ...rest } = response.data;
         setBookData({
           ...rest,
-          categories: categories.map((category) => category._id), // Gán các category đã chọn
+          categories: categories.map((category) => category._id),
         });
-        setSelectedCategories(categories.map((category) => category._id)); // Cập nhật selectedCategories
+        setSelectedCategories(categories.map((category) => category._id));
       } catch (err) {
         console.error(
           "Error fetching book data:",
@@ -72,11 +71,10 @@ function UpdateBook() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Cập nhật bookData.categories với selectedCategories
     const updatedBookData = {
       ...bookData,
       isAdmin: true,
-      categories: selectedCategories, // Cập nhật categories trước khi gửi
+      categories: selectedCategories,
     };
     try {
       const response = await axios.put(
@@ -84,7 +82,7 @@ function UpdateBook() {
         updatedBookData
       );
       alert("Book updated successfully");
-      navigate("/dashboard@admin/managebook"); // Chuyển hướng về trang quản lý sách
+      navigate("/dashboard@admin/managebook");
     } catch (err) {
       console.error("Error updating book:", err);
     }
@@ -119,6 +117,19 @@ function UpdateBook() {
             value={bookData.author}
             onChange={handleInputChange}
             required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label" htmlFor="photo_url">
+            Photo Url
+          </label>
+          <input
+            className="form-control"
+            type="text"
+            name="photo_url"
+            value={bookData.photo_url}
+            onChange={handleInputChange}
           />
         </div>
 

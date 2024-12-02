@@ -59,8 +59,8 @@ function AddTransaction() {
       ) {
         const transactionData = {
           bookId: bookId,
-          borrowerId: borrowerId,
-          borrowerName: borrower_details.data.userFullName,
+          userId: borrowerId,
+          userName: borrower_details.data.userName,
           bookName: book_details.data.bookName,
           transactionType: transactionType,
           fromDate: fromDateString,
@@ -150,9 +150,9 @@ function AddTransaction() {
         const all_members = await response.data.map((member) => ({
           value: `${member?._id}`,
           text: `${
-            member?.userType === "Student"
-              ? `${member?.userFullName}[${member?.admissionId}]`
-              : `${member?.userFullName}[${member?.employeeId}]`
+            member?.isAdmin
+              ? `${member?.username} [Admin]`
+              : `${member?.username} [Member]`
           }`,
         }));
         setAllMembers(all_members);
@@ -177,12 +177,12 @@ function AddTransaction() {
   }, [API_URL]);
 
   return (
-    <div>
-      <p className="dashboard-option-title">Add a Transaction</p>
+    <div className="container">
+      <h3 className="mt-4 mb-3">Add a Transaction</h3>
       <div className="dashboard-title-line"></div>
-      <form className="transaction-form" onSubmit={addTransaction}>
-        <label className="transaction-form-label" htmlFor="borrowerId">
-          Borrower<span className="required-field">*</span>
+      <form onSubmit={addTransaction}>
+        <label className="form-label" htmlFor="borrowerId">
+          Borrower<span className="text-danger">*</span>
         </label>
         <br />
         <div className="semanticdropdown">
@@ -194,20 +194,20 @@ function AddTransaction() {
             value={borrowerId}
             options={allMembers}
             onChange={(event, data) => setBorrowerId(data.value)}
+            className="form-control"
           />
         </div>
         <table
-          className="admindashboard-table shortinfo-table"
+          className="table table-striped"
           style={borrowerId === "" ? { display: "none" } : {}}
         >
           <tr>
             <th>Name</th>
             <th>Issued</th>
             <th>Reserved</th>
-            <th>Points</th>
           </tr>
           <tr>
-            <td>{borrowerDetails.userFullName}</td>
+            <td>{borrowerDetails.username}</td>
             <td>
               {
                 borrowerDetails.activeTransactions?.filter((data) => {
@@ -228,27 +228,25 @@ function AddTransaction() {
                 }).length
               }
             </td>
-            <td>{borrowerDetails.points}</td>
           </tr>
         </table>
+
+        <div
+          style={borrowerId === "" ? { display: "none" } : {}}
+          className="dashboard-title-line"
+        ></div>
+
         <table
-          className="admindashboard-table shortinfo-table"
+          className="table table-striped"
           style={borrowerId === "" ? { display: "none" } : {}}
         >
           <tr>
-            <th>Book-Name</th>
+            <th>Book Name</th>
             <th>Transaction</th>
-            <th>
-              From Date
-              <br />
-              <span style={{ fontSize: "10px" }}>[MM/DD/YYYY]</span>
-            </th>
-            <th>
-              To Date
-              <br />
-              <span style={{ fontSize: "10px" }}>[MM/DD/YYYY]</span>
-            </th>
+            <th>From Date</th>
+            <th>To Date</th>
             <th>Fine</th>
+            <th>Quản lý</th>
           </tr>
           {borrowerDetails.activeTransactions
             ?.filter((data) => {
@@ -274,28 +272,43 @@ function AddTransaction() {
                             86400000
                         ) * 10}
                   </td>
+                  <td>
+                    <button className="btn btn-danger ">Delete</button>
+                    <Link to={`/dashboard@admin/updatebook/${book._id}`}>
+                      <button className="btn btn-primary ms-4">Update</button>
+                    </Link>
+                  </td>
                 </tr>
               );
             })}
         </table>
 
-        <label className="transaction-form-label" htmlFor="bookName">
-          Book Name<span className="required-field">*</span>
-        </label>
-        <br />
-        <div className="semanticdropdown">
-          <Dropdown
-            placeholder="Select a Book"
-            fluid
-            search
-            selection
-            options={allBooks}
-            value={bookId}
-            onChange={(event, data) => setBookId(data.value)}
-          />
+        <div
+          style={borrowerId === "" ? { display: "none" } : {}}
+          className="dashboard-title-line"
+        ></div>
+
+        <div className="mb-3">
+          <label className="form-label mt-3" htmlFor="bookName">
+            Book Name<span className="text-danger">*</span>
+          </label>
+          <br />
+          <div className="semanticdropdown">
+            <Dropdown
+              placeholder="Select a Book"
+              fluid
+              search
+              selection
+              options={allBooks}
+              value={bookId}
+              onChange={(event, data) => setBookId(data.value)}
+              className="form-control"
+            />
+          </div>
         </div>
+
         <table
-          className="admindashboard-table shortinfo-table"
+          className="table table-striped"
           style={bookId === "" ? { display: "none" } : {}}
         >
           <tr>
@@ -304,8 +317,13 @@ function AddTransaction() {
           </tr>
         </table>
 
-        <label className="transaction-form-label" htmlFor="transactionType">
-          Transaction Type<span className="required-field">*</span>
+        <div
+          style={bookId === "" ? { display: "none" } : {}}
+          className="dashboard-title-line"
+        ></div>
+
+        <label className="form-label" htmlFor="transactionType">
+          Transaction Type<span className="text-danger">*</span>
         </label>
         <br />
         <div className="semanticdropdown">
@@ -316,12 +334,13 @@ function AddTransaction() {
             value={transactionType}
             options={transactionTypes}
             onChange={(event, data) => setTransactionType(data.value)}
+            className="form-control"
           />
         </div>
         <br />
 
-        <label className="transaction-form-label" htmlFor="from-date">
-          From Date<span className="required-field">*</span>
+        <label className="form-label" htmlFor="from-date">
+          From Date<span className="text-danger">*</span>
         </label>
         <br />
         <DatePicker
@@ -335,9 +354,9 @@ function AddTransaction() {
           minDate={new Date()}
           dateFormat="MM/dd/yyyy"
         />
-
-        <label className="transaction-form-label" htmlFor="to-date">
-          To Date<span className="required-field">*</span>
+        <br />
+        <label className="form-label mt-3" htmlFor="to-date">
+          To Date<span className="text-danger">*</span>
         </label>
         <br />
         <DatePicker
@@ -351,14 +370,15 @@ function AddTransaction() {
           minDate={new Date()}
           dateFormat="MM/dd/yyyy"
         />
-
+        <br />
         <input
-          className="transaction-form-submit"
+          className="form-submit mt-3 btn btn-primary"
           type="submit"
-          value="SUBMIT"
+          value="Submit"
           disabled={isLoading}
         ></input>
       </form>
+
       <p className="dashboard-option-title">Recent Transactions</p>
       <div className="dashboard-title-line"></div>
       <table className="admindashboard-table">

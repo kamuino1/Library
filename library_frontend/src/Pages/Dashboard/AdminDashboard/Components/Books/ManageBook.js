@@ -53,7 +53,7 @@ function ManageBook() {
                 </td>
                 <td>{book.createdAt.substring(0, 10)}</td>
                 <td>
-                  <button className="btn btn-danger ">Delete</button>
+                  <button className="btn btn-danger">Delete</button>
                   <Link to={`/dashboard@admin/updatebook/${book._id}`}>
                     <button className="btn btn-primary ms-4">Update</button>
                   </Link>

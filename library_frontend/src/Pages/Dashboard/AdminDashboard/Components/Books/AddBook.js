@@ -13,6 +13,7 @@ function AddBook() {
 
   const [bookName, setBookName] = useState("");
   const [author, setAuthor] = useState("");
+  const [photo_url, setPhotoUrl] = useState("");
   const [bookCountAvailable, setBookCountAvailable] = useState(null);
   const [language, setLanguage] = useState("");
   const [publisher, setPublisher] = useState("");
@@ -46,6 +47,7 @@ function AddBook() {
     const BookData = {
       bookName: bookName,
       author: author,
+      photo_url: photo_url,
       bookCountAvailable: bookCountAvailable,
       language: language,
       publisher: publisher,
@@ -65,6 +67,7 @@ function AddBook() {
       setAuthor("");
       setBookCountAvailable(null);
       setLanguage("");
+      setPhotoUrl("");
       setPublisher("");
       setSelectedCategories([]);
       alert("Thêm sách thành công");
@@ -121,6 +124,21 @@ function AddBook() {
               setAuthor(e.target.value);
             }}
             required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label" htmlFor="author">
+            Photo Url
+          </label>
+          <input
+            className="form-control"
+            type="text"
+            name="author"
+            value={author}
+            onChange={(e) => {
+              setPhotoUrl(e.target.value);
+            }}
           />
         </div>
 
