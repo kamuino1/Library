@@ -26,6 +26,12 @@ function Header() {
   const handleMenuClose = () => setAnchorEl(null);
   const handleMenuToggle = () => setMenuToggle(!menuToggle);
 
+  // Logout function
+  const logout = () => {
+    localStorage.removeItem("user");
+    window.location.reload();
+  };
+
   return (
     <AppBar position="sticky" sx={{ backgroundColor: "#333" }}>
       <Toolbar>
@@ -46,14 +52,6 @@ function Header() {
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
               >
-                <MenuItem onClick={handleMenuClose}>
-                  <Link
-                    to="/books"
-                    style={{ textDecoration: "none", color: "black" }}
-                  >
-                    Books
-                  </Link>
-                </MenuItem>
                 {!user ? (
                   <>
                     <MenuItem onClick={handleMenuClose}>
@@ -97,14 +95,6 @@ function Header() {
           </>
         ) : (
           <div style={{ display: "flex", alignItems: "center" }}>
-            <Button color="inherit">
-              <Link
-                to="/books"
-                style={{ textDecoration: "none", color: "white" }}
-              >
-                Books
-              </Link>
-            </Button>
             {!user ? (
               <>
                 <Button color="inherit">
@@ -125,23 +115,28 @@ function Header() {
                 </Button>
               </>
             ) : (
-              <Button color="inherit">
-                {user.isAdmin ? (
-                  <Link
-                    to="/dashboard@admin"
-                    style={{ textDecoration: "none", color: "white" }}
-                  >
-                    Admin Dashboard
-                  </Link>
-                ) : (
-                  <Link
-                    to="/dashboard@member"
-                    style={{ textDecoration: "none", color: "white" }}
-                  >
-                    Member Dashboard
-                  </Link>
-                )}
-              </Button>
+              <div>
+                <Button color="inherit">
+                  {user.isAdmin ? (
+                    <Link
+                      to="/dashboard@admin"
+                      style={{ textDecoration: "none", color: "white" }}
+                    >
+                      Admin Dashboard
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/dashboard@member"
+                      style={{ textDecoration: "none", color: "white" }}
+                    >
+                      Member Dashboard
+                    </Link>
+                  )}
+                </Button>
+                <Button color="inherit" onClick={logout}>
+                  Log out
+                </Button>
+              </div>
             )}
           </div>
         )}

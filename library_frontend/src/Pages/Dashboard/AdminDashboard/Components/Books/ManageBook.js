@@ -50,6 +50,7 @@ function ManageBook() {
               <th>STT</th>
               <th>Tên sách</th>
               <th>Ngày thêm</th>
+              <th>Số lượng</th>
               <th>Quản lý</th>
             </tr>
           </thead>
@@ -64,12 +65,13 @@ function ManageBook() {
                     Danh mục:{" "}
                     {book.categories && book.categories.length > 0
                       ? book.categories.map((category) => (
-                          <span key={index}>{category._id}</span>
+                          <span key={index}>{category.categoryName} </span>
                         ))
                       : "Không có danh mục"}
                   </small>
                 </td>
                 <td>{book.createdAt.substring(0, 10)}</td>
+                <td>{book.bookCountAvailable}</td>
                 <td>
                   <button
                     className="btn btn-danger"

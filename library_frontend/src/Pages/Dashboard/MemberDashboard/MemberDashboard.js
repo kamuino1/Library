@@ -1,42 +1,32 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "../AdminDashboard/AdminDashboard.css";
-import "./MemberDashboard.css";
 
+import PieChartIcon from "@mui/icons-material/PieChart";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BookIcon from "@mui/icons-material/Book";
-import HistoryIcon from "@mui/icons-material/History";
-import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
-import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
-import CloseIcon from "@mui/icons-material/Close";
+import ReceiptIcon from "@mui/icons-material/Receipt";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import { IconButton } from "@mui/material";
-import { AuthContext } from "../../../Context/AuthContext";
-import axios from "axios";
-import moment from "moment";
+import CloseIcon from "@mui/icons-material/Close";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import { Outlet } from "react-router-dom";
 
-function MemberDashboard() {
-  const [active, setActive] = useState("profile");
+/* Semantic UI Dropdown Styles Import */
+const styleLink = document.createElement("link");
+styleLink.rel = "stylesheet";
+styleLink.href =
+  "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
+document.head.appendChild(styleLink);
+
+function AdminDashboard() {
+  const [active, setActive] = useState("managebook");
   const [sidebar, setSidebar] = useState(false);
 
-  const API_URL = process.env.REACT_APP_API_URL;
-  const { user } = useContext(AuthContext);
-  const [memberDetails, setMemberDetails] = useState(null);
-
-  useEffect(() => {
-    const getMemberDetails = async () => {
-      try {
-        const response = await axios.get(
-          API_URL + "api/users/getuser/" + user._id
-        );
-        setMemberDetails(response.data);
-      } catch (err) {
-        console.log("Error in fetching the member details");
-      }
-    };
-    getMemberDetails();
-  }, [API_URL, user]);
-
+  // Logout function
   const logout = () => {
     localStorage.removeItem("user");
     window.location.reload();
@@ -56,270 +46,50 @@ function MemberDashboard() {
             )}
           </IconButton>
         </div>
+
+        {/* Sidebar */}
         <div
           className={sidebar ? "dashboard-options active" : "dashboard-options"}
         >
           <div className="dashboard-logo">
             <LibraryBooksIcon style={{ fontSize: 50 }} />
-            <p className="logo-name">LCMS</p>
+            <p className="logo-name">Library Management</p>
           </div>
-          <a
-            href="#profile@member"
-            className={`dashboard-option ${
-              active === "profile" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("profile");
-              setSidebar(false);
-            }}
-          >
-            <AccountCircleIcon className="dashboard-option-icon" /> Profile
-          </a>
-          <a
-            href="#activebooks@member"
-            className={`dashboard-option ${
-              active === "active" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("active");
-              setSidebar(false);
-            }}
-          >
-            <LocalLibraryIcon className="dashboard-option-icon" /> Active
-          </a>
-          <a
-            href="#reservedbook@member"
-            className={`dashboard-option ${
-              active === "reserved" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("reserved");
-              setSidebar(false);
-            }}
-          >
-            <BookIcon className="dashboard-option-icon" /> Reserved
-          </a>
-          <a
-            href="#history@member"
-            className={`dashboard-option ${
-              active === "history" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              setActive("history");
-              setSidebar(false);
-            }}
-          >
-            <HistoryIcon className="dashboard-option-icon" /> History
-          </a>
-          <a
-            href="#profile@member"
-            className={`dashboard-option ${
-              active === "logout" ? "clicked" : ""
-            }`}
-            onClick={() => {
-              logout();
-              setSidebar(false);
-            }}
-          >
-            <PowerSettingsNewIcon className="dashboard-option-icon" /> Log out{" "}
-          </a>
+
+          <Link to="showtransaction">
+            <p
+              className={`dashboard-option ${
+                active === "showtransaction" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("showtransaction")}
+            >
+              <ReceiptIcon className="dashboard-option-icon" /> Tất cả phiên
+              mượn
+            </p>
+          </Link>
+
+          <Link to="reservedbook">
+            <p
+              className={`dashboard-option ${
+                active === "reservedbook" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("reservedbook")}
+            >
+              <BookIcon className="dashboard-option-icon" /> Đặt trước sách
+            </p>
+          </Link>
+
+          <p className="dashboard-option" onClick={logout}>
+            <PowerSettingsNewIcon className="dashboard-option-icon" /> Log out
+          </p>
         </div>
 
         <div className="dashboard-option-content">
-          <div className="member-profile-content" id="profile@member">
-            <div className="user-details-topbar">
-              <img
-                className="user-profileimage"
-                src="./assets/images/Profile.png"
-                alt=""
-              ></img>
-              <div className="user-info">
-                <p className="user-name">{memberDetails?.userFullName}</p>
-                <p className="user-id">
-                  {memberDetails?.userType === "Student"
-                    ? memberDetails?.admissionId
-                    : memberDetails?.employeeId}
-                </p>
-                <p className="user-email">{memberDetails?.email}</p>
-                <p className="user-phone">{memberDetails?.mobileNumber}</p>
-              </div>
-            </div>
-            <div className="user-details-specific">
-              <div className="specific-left">
-                <div className="specific-left-top">
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>Age</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.age}
-                    </span>
-                  </p>
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>Gender</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.gender}
-                    </span>
-                  </p>
-                </div>
-                <div className="specific-left-bottom">
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>DOB</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.dob}
-                    </span>
-                  </p>
-                  <p className="specific-left-topic">
-                    <span style={{ fontSize: "18px" }}>
-                      <b>Address</b>
-                    </span>
-                    <span style={{ fontSize: "16px" }}>
-                      {memberDetails?.address}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <div className="specific-right">
-                <div className="specific-right-top">
-                  <p className="specific-right-topic">
-                    <b>Points</b>
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "25px",
-                      fontWeight: "500",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginTop: "15px",
-                    }}
-                  >
-                    540
-                  </p>
-                </div>
-                <div className="dashboard-title-line"></div>
-                <div className="specific-right-bottom">
-                  <p className="specific-right-topic">
-                    <b>Rank</b>
-                  </p>
-                  <p
-                    style={{
-                      fontSize: "25px",
-                      fontWeight: "500",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginTop: "15px",
-                    }}
-                  >
-                    {memberDetails?.points}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="member-activebooks-content" id="activebooks@member">
-            <p className="member-dashboard-heading">Issued</p>
-            <table className="activebooks-table">
-              <tr>
-                <th>S.No</th>
-                <th>Book-Name</th>
-                <th>From Date</th>
-                <th>To Date</th>
-                <th>Fine</th>
-              </tr>
-              {memberDetails?.activeTransactions
-                ?.filter((data) => {
-                  return data.transactionType === "Issued";
-                })
-                .map((data, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{data.bookName}</td>
-                      <td>{data.fromDate}</td>
-                      <td>{data.toDate}</td>
-                      <td>
-                        {Math.floor(
-                          (Date.parse(moment(new Date()).format("MM/DD/YYYY")) -
-                            Date.parse(data.toDate)) /
-                            86400000
-                        ) <= 0
-                          ? 0
-                          : Math.floor(
-                              (Date.parse(
-                                moment(new Date()).format("MM/DD/YYYY")
-                              ) -
-                                Date.parse(data.toDate)) /
-                                86400000
-                            ) * 10}
-                      </td>
-                    </tr>
-                  );
-                })}
-            </table>
-          </div>
-
-          <div
-            className="member-reservedbooks-content"
-            id="reservedbooks@member"
-          >
-            <p className="member-dashboard-heading">Reserved</p>
-            <table className="activebooks-table">
-              <tr>
-                <th>S.No</th>
-                <th>Book-Name</th>
-                <th>From</th>
-                <th>To</th>
-              </tr>
-              {memberDetails?.activeTransactions
-                ?.filter((data) => {
-                  return data.transactionType === "Reserved";
-                })
-                .map((data, index) => {
-                  return (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{data.bookName}</td>
-                      <td>{data.fromDate}</td>
-                      <td>{data.toDate}</td>
-                    </tr>
-                  );
-                })}
-            </table>
-          </div>
-          <div className="member-history-content" id="history@member">
-            <p className="member-dashboard-heading">History</p>
-            <table className="activebooks-table">
-              <tr>
-                <th>S.No</th>
-                <th>Book-Name</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Return Date</th>
-              </tr>
-              {memberDetails?.prevTransactions?.map((data, index) => {
-                return (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{data.bookName}</td>
-                    <td>{data.fromDate}</td>
-                    <td>{data.toDate}</td>
-                    <td>{data.returnDate}</td>
-                  </tr>
-                );
-              })}
-            </table>
-          </div>
+          <Outlet />
         </div>
       </div>
     </div>
   );
 }
 
-export default MemberDashboard;
+export default AdminDashboard;

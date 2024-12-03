@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import "../../AdminDashboard.css";
+import "../../AdminDashboard/AdminDashboard.css";
 import axios from "axios";
-import { AuthContext } from "../../../../../Context/AuthContext";
+import { AuthContext } from "../../../../Context/AuthContext";
 import { Dropdown } from "semantic-ui-react";
 import DatePicker from "react-datepicker";
 import moment from "moment";
 import { Link } from "react-router-dom";
 
-function AddTransaction() {
+function ReservedTransaction() {
   const API_URL = process.env.REACT_APP_API_URL;
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useContext(AuthContext);
@@ -25,12 +25,15 @@ function AddTransaction() {
   const [toDate, setToDate] = useState(null);
   const [toDateString, setToDateString] = useState(null);
 
-  const transactionTypes = [
-    { value: "Reserved", text: "Đặt trước" },
-    { value: "Issued", text: "Mượn" },
-  ];
+  const transactionTypes = [{ value: "Reserved", text: "Đặt trước" }];
 
   const [transactionType, setTransactionType] = useState("");
+
+  useEffect(() => {
+    if (user && user._id) {
+      setBorrowerId(user._id);
+    }
+  }, [user]);
 
   /* Adding a Transaction */
   const addTransaction = async (e) => {
@@ -49,74 +52,50 @@ function AddTransaction() {
       const book_details = await getBook(bookId);
 
       /* Checking weather the book is available or not */
-      if (
-        (book_details.bookCountAvailable > 0 &&
-          (transactionType === "Issued" || transactionType === "Reserved")) ||
-        (book_details.bookCountAvailable === 0 &&
-          transactionType === "Reserved")
-      ) {
-        const transactionData = {
-          bookId: bookId,
-          userId: borrowerId,
-          userName: borrower_details.data.userName,
-          bookName: book_details.bookName,
-          transactionType: transactionType,
-          fromDate: fromDateString,
-          toDate: toDateString,
-          isAdmin: user.isAdmin,
-        };
-        console.log(transactionData);
-        try {
-          const response = await axios.post(
-            API_URL + "api/transactions/add-transaction",
-            transactionData
-          );
-          await axios.put(
-            API_URL +
-              `api/users/${response.data._id}/move-to-activetransactions`,
-            {
-              userId: borrowerId,
-              isAdmin: user.isAdmin,
-            }
-          );
-          await axios.put(API_URL + "api/books/updatebook/" + bookId, {
-            isAdmin: user.isAdmin,
-            bookCountAvailable: book_details.bookCountAvailable - 1,
-          });
+      const transactionData = {
+        bookId: bookId,
+        userId: borrowerId,
+        userName: borrower_details.data.userName,
+        bookName: book_details.bookName,
+        transactionType: transactionType,
+        fromDate: fromDateString,
+        toDate: toDateString,
+        isAdmin: true,
+      };
+      console.log(transactionData);
+      try {
+        const response = await axios.post(
+          API_URL + "api/transactions/add-transaction",
+          transactionData
+        );
+        await axios.put(
+          API_URL + `api/users/${response.data._id}/move-to-activetransactions`,
+          {
+            userId: borrowerId,
+            isAdmin: true,
+          }
+        );
+        await axios.put(API_URL + "api/books/updatebook/" + bookId, {
+          isAdmin: true,
+          bookCountAvailable: book_details.bookCountAvailable - 1,
+        });
 
-          setBorrowerId("");
-          setBookId("");
-          setTransactionType("");
-          setFromDate(null);
-          setToDate(null);
-          setFromDateString(null);
-          setToDateString(null);
-          alert("Transaction was Successfull 🎉");
-        } catch (err) {
-          console.log(err);
-        }
-      } else {
-        alert("The book is not available");
+        setBorrowerId("");
+        setBookId("");
+        setTransactionType("");
+        setFromDate(null);
+        setToDate(null);
+        setFromDateString(null);
+        setToDateString(null);
+        alert("Transaction was Successfull 🎉");
+      } catch (err) {
+        console.log(err);
       }
     } else {
       alert("Fields must not be empty");
     }
     setIsLoading(false);
   };
-
-  /* Fetch Transactions */
-  useEffect(() => {
-    const getTransactions = async () => {
-      try {
-        const response = await axios.get(
-          API_URL + "api/transactions/all-transactions"
-        );
-      } catch (err) {
-        console.log("Error in fetching transactions");
-      }
-    };
-    getTransactions();
-  }, [API_URL]);
 
   /* Fetching borrower details */
   useEffect(() => {
@@ -126,6 +105,7 @@ function AddTransaction() {
           const response = await axios.get(
             API_URL + "api/users/getuser/" + borrowerId
           );
+          console.log(response.data);
           setBorrowerDetails(response.data);
         }
       } catch (err) {
@@ -149,27 +129,6 @@ function AddTransaction() {
     }
   };
 
-  /* Fetching members */
-  useEffect(() => {
-    const getMembers = async () => {
-      try {
-        const response = await axios.get(API_URL + "api/users/allmembers");
-        const all_members = await response.data.map((member) => ({
-          value: `${member?._id}`,
-          text: `${
-            member?.isAdmin
-              ? `${member?.username} [Admin]`
-              : `${member?.username} [Member]`
-          }`,
-        }));
-        setAllMembers(all_members);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getMembers();
-  }, [API_URL]);
-
   /* Fetching books */
   useEffect(() => {
     const getallBooks = async () => {
@@ -186,31 +145,9 @@ function AddTransaction() {
   return (
     <div className="container">
       <h3 className="mt-4 mb-3">Thêm phiên mượn</h3>
-      <Link to="/dashboard@admin/managetransaction">
-        <button className="btn btn-success mb-2">Quản lý phiên mượn</button>
-      </Link>
       <div className="dashboard-title-line"></div>
       <form onSubmit={addTransaction}>
-        <label className="form-label" htmlFor="borrowerId">
-          Người mượn<span className="text-danger">*</span>
-        </label>
-        <br />
-        <div className="semanticdropdown">
-          <Dropdown
-            placeholder="Select Member"
-            fluid
-            search
-            selection
-            value={borrowerId}
-            options={allMembers}
-            onChange={(event, data) => setBorrowerId(data.value)}
-            className="form-control"
-          />
-        </div>
-        <table
-          className="table table-striped"
-          style={borrowerId === "" ? { display: "none" } : {}}
-        >
+        <table className="table table-striped">
           <tr>
             <th>Tên người mượn</th>
             <th>Đã mượn</th>
@@ -395,7 +332,7 @@ function AddTransaction() {
         <input
           className="form-submit mt-3 btn btn-primary"
           type="submit"
-          value="Thêm"
+          value="Đặt trước"
           disabled={isLoading}
         ></input>
       </form>
@@ -403,4 +340,4 @@ function AddTransaction() {
   );
 }
 
-export default AddTransaction;
+export default ReservedTransaction;

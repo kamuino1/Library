@@ -38,7 +38,7 @@ function Home() {
               <Grid.Column key={book._id}>
                 <Card>
                   <Image
-                    src={book.image || "https://via.placeholder.com/150"}
+                    src={book.photo_url || "https://via.placeholder.com/150"}
                     wrapped
                     ui={false}
                   />
@@ -69,9 +69,6 @@ function Home() {
             ))}
           </Grid>
         )}
-      </div>
-      <div className="footer-container">
-        <Footer />
       </div>
     </div>
   );

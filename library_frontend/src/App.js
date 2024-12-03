@@ -22,6 +22,8 @@ import Stats from "./Pages/Dashboard/AdminDashboard/Components/Stats.js";
 import AddMember from "./Pages/Dashboard/AdminDashboard/Components/AddMember";
 import GetMember from "./Pages/Dashboard/AdminDashboard/Components/GetMember";
 import Return from "./Pages/Dashboard/AdminDashboard/Components/Return";
+import ShowTransaction from "./Pages/Dashboard/MemberDashboard/Components/ShowTransaction.js";
+import ReservedBook from "./Pages/Dashboard/MemberDashboard/Components/ReservedBook.js";
 
 import { useContext } from "react";
 import { AuthContext } from "./Context/AuthContext.js";
@@ -63,7 +65,10 @@ function App() {
                 <Navigate to="/" />
               )
             }
-          />
+          >
+            <Route path="showtransaction" element={<ShowTransaction />} />
+            <Route path="reservedbook" element={<ReservedBook />} />
+          </Route>
           <Route
             path="/dashboard@admin"
             element={
