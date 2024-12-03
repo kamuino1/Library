@@ -73,7 +73,7 @@ function UpdateBook() {
     e.preventDefault();
     const updatedBookData = {
       ...bookData,
-      isAdmin: true,
+      isAdmin: user.isAdmin,
       categories: selectedCategories,
     };
     try {

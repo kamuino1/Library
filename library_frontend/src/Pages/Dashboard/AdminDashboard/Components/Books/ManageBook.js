@@ -15,6 +15,24 @@ function ManageBook() {
     getallBooks();
   }, [API_URL]);
 
+  const handleDeleteBook = async (bookId) => {
+    const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa sách này?");
+    if (confirmDelete) {
+      try {
+        await axios.delete(`${API_URL}api/books/removebook/${bookId}`, {
+          data: { isAdmin: true },
+        });
+        setAllBooks((prevBooks) =>
+          prevBooks.filter((book) => book._id !== bookId)
+        );
+        alert("Xóa sách thành công!");
+      } catch (err) {
+        console.error("Lỗi khi xóa sách:", err);
+        alert("Đã xảy ra lỗi khi xóa sách.");
+      }
+    }
+  };
+
   return (
     <div className="manage-book">
       <h2>Quản lý sách</h2>
@@ -53,7 +71,12 @@ function ManageBook() {
                 </td>
                 <td>{book.createdAt.substring(0, 10)}</td>
                 <td>
-                  <button className="btn btn-danger">Delete</button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleDeleteBook(book._id)}
+                  >
+                    Delete
+                  </button>
                   <Link to={`/dashboard@admin/updatebook/${book._id}`}>
                     <button className="btn btn-primary ms-4">Update</button>
                   </Link>

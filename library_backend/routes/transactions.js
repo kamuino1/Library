@@ -7,12 +7,12 @@ const router = express.Router();
 /* Thêm phiên mượn sách mới */
 router.post("/add-transaction", async (req, res) => {
   try {
-    if (req.body.isAdmin === true) {
+    if (req.body.isAdmin) {
       const newTransaction = new BookTransaction({
         bookId: req.body.bookId,
-        borrowerId: req.body.borrowerId,
+        userId: req.body.userId,
         bookName: req.body.bookName,
-        borrowerName: req.body.borrowerName,
+        username: req.body.username,
         transactionType: req.body.transactionType,
         fromDate: req.body.fromDate,
         toDate: req.body.toDate,
@@ -46,17 +46,38 @@ router.get("/all-transactions", async (req, res) => {
 
 /* Cập nhật thông tin phiên mượn sách */
 router.put("/update-transaction/:id", async (req, res) => {
-  try {
-    if (req.body.isAdmin) {
-      await BookTransaction.findByIdAndUpdate(req.params.id, {
-        $set: req.body,
+  if (req.body.isAdmin) {
+    try {
+      const transactionId = req.params.id;
+      const updatedTransaction = req.body;
+
+      const currentTransaction = await BookTransaction.findById(transactionId);
+      if (!currentTransaction) {
+        return res.status(404).json("Không tìm thấy phiên mượn sách");
+      }
+      const oldBookId = currentTransaction.bookId;
+      const newBookId = updatedTransaction.bookId;
+
+      if (oldBookId !== newBookId) {
+        await Book.findByIdAndUpdate(oldBookId, {
+          $pull: { transactions: transactionId },
+        });
+        await Book.findByIdAndUpdate(newBookId, {
+          $addToSet: { transactions: transactionId },
+        });
+      }
+
+      await BookTransaction.findByIdAndUpdate(transactionId, {
+        $set: updatedTransaction,
       });
-      res.status(200).json("phiên mượn sách cập nhật thành công");
-    } else {
-      res.status(403).json("Bạn không được phép cập nhật phiên mượn sách");
+
+      res.status(200).json("Phiên mượn sách cập nhật thành công");
+    } catch (err) {
+      console.error("Lỗi cập nhật phiên mượn sách:", err);
+      res.status(500).json("Có lỗi xảy ra khi cập nhật phiên mượn sách");
     }
-  } catch (err) {
-    res.status(504).json(err);
+  } else {
+    return res.status(403).json("Bạn không được phép cập nhật phiên mượn sách");
   }
 });
 

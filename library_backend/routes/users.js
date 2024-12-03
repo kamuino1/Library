@@ -97,6 +97,24 @@ router.put("/:id/move-to-prevtransactions", async (req, res) => {
   }
 });
 
+/* xóa phiên mượn sách */
+router.put("/:id/delete-activetransactions", async (req, res) => {
+  if (req.body.isAdmin) {
+    try {
+      const user = await User.findById(req.body.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      await user.updateOne({ $pull: { activeTransactions: req.params.id } });
+      res.status(200).json("Đã xóa phiên mượn sách");
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(403).json("Chỉ quản trị viên được xóa");
+  }
+});
+
 /* Xóa người dùng theo ID */
 router.delete("/deleteuser/:id", async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {

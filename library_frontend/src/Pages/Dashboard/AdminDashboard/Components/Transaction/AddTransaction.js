@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import "../AdminDashboard.css";
+import "../../AdminDashboard.css";
 import axios from "axios";
-import { AuthContext } from "../../../../Context/AuthContext";
+import { AuthContext } from "../../../../../Context/AuthContext";
 import { Dropdown } from "semantic-ui-react";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 function AddTransaction() {
   const API_URL = process.env.REACT_APP_API_URL;
@@ -14,8 +14,8 @@ function AddTransaction() {
 
   const [borrowerId, setBorrowerId] = useState("");
   const [borrowerDetails, setBorrowerDetails] = useState([]);
+  const [bookDetails, setBookDetails] = useState([]);
   const [bookId, setBookId] = useState("");
-  const [recentTransactions, setRecentTransactions] = useState([]);
   const [allMembers, setAllMembers] = useState([]);
   const [allBooks, setAllBooks] = useState([]);
 
@@ -26,8 +26,8 @@ function AddTransaction() {
   const [toDateString, setToDateString] = useState(null);
 
   const transactionTypes = [
-    { value: "Reserved", text: "Reserve" },
-    { value: "Issued", text: "Issue" },
+    { value: "Reserved", text: "Đặt trước" },
+    { value: "Issued", text: "Mượn" },
   ];
 
   const [transactionType, setTransactionType] = useState("");
@@ -46,9 +46,7 @@ function AddTransaction() {
       const borrower_details = await axios.get(
         API_URL + "api/users/getuser/" + borrowerId
       );
-      const book_details = await axios.get(
-        API_URL + "api/books/getbook/" + bookId
-      );
+      const book_details = await getBook(bookId);
 
       /* Checking weather the book is available or not */
       if (
@@ -72,9 +70,6 @@ function AddTransaction() {
             API_URL + "api/transactions/add-transaction",
             transactionData
           );
-          if (recentTransactions.length >= 5) {
-            recentTransactions.splice(-1);
-          }
           await axios.put(
             API_URL +
               `api/users/${response.data._id}/move-to-activetransactions`,
@@ -83,13 +78,11 @@ function AddTransaction() {
               isAdmin: user.isAdmin,
             }
           );
-
           await axios.put(API_URL + "api/books/updatebook/" + bookId, {
             isAdmin: user.isAdmin,
             bookCountAvailable: book_details.data.bookCountAvailable - 1,
           });
 
-          setRecentTransactions([response.data, ...recentTransactions]);
           setBorrowerId("");
           setBookId("");
           setTransactionType("");
@@ -117,7 +110,6 @@ function AddTransaction() {
         const response = await axios.get(
           API_URL + "api/transactions/all-transactions"
         );
-        setRecentTransactions(response.data.slice(0, 5));
       } catch (err) {
         console.log("Error in fetching transactions");
       }
@@ -141,6 +133,20 @@ function AddTransaction() {
     };
     getBorrowerDetails();
   }, [API_URL, borrowerId]);
+
+  const getBook = async (bookId) => {
+    try {
+      if (bookId !== "") {
+        const response = await axios.get(
+          API_URL + "api/books/getbook/" + bookId
+        );
+        setBookDetails(response.data);
+        return response.data;
+      }
+    } catch (err) {
+      console.log("Error in getting borrower details");
+    }
+  };
 
   /* Fetching members */
   useEffect(() => {
@@ -176,13 +182,105 @@ function AddTransaction() {
     getallBooks();
   }, [API_URL]);
 
+  /* Delete Transaction */
+  const handleDeleteTransaction = async (transactionId) => {
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn xóa phiên mượn này?"
+    );
+    if (confirmDelete) {
+      try {
+        await axios.delete(
+          `${API_URL}api/transactions/remove-transaction/${transactionId}`,
+          {
+            data: { isAdmin: user.isAdmin },
+          }
+        );
+
+        await axios.put(
+          API_URL + `api/users/${transactionId}/delete-activetransactions`,
+          {
+            userId: borrowerId,
+            isAdmin: user.isAdmin,
+          }
+        );
+
+        setBorrowerDetails((prevDetails) => ({
+          ...prevDetails,
+          activeTransactions: prevDetails.activeTransactions.filter(
+            (transaction) => transaction._id !== transactionId
+          ),
+        }));
+
+        alert("Phiên mượn sách đã được xóa thành công!");
+      } catch (err) {
+        console.error("Lỗi khi xóa phiên mượn sách:", err);
+        alert("Đã xảy ra lỗi khi xóa phiên mượn sách.");
+      }
+    }
+  };
+
+  /* return Transaction */
+  const handlePrevTransaction = async (transactionId) => {
+    const confirmDelete = window.confirm("Bạn có chắc chắn muốn trả sách?");
+    if (confirmDelete) {
+      try {
+        await axios.put(
+          `${API_URL}api/transactions/update-transaction/${transactionId}`,
+          {
+            data: {
+              transactionStatus: "InActive",
+              returnDate: moment(new Date()).format("MM/DD/YYYY"),
+              isAdmin: user.isAdmin,
+            },
+          }
+        );
+
+        await axios.put(
+          `${API_URL}api/users/${transactionId}/move-to-prevtransactions`,
+          {
+            userId: borrowerId,
+            isAdmin: user.isAdmin,
+          }
+        );
+
+        setBorrowerDetails((prevDetails) => {
+          const updatedActiveTransactions =
+            prevDetails.activeTransactions.filter(
+              (transaction) => transaction._id !== transactionId
+            );
+
+          const movedTransaction = prevDetails.activeTransactions.find(
+            (transaction) => transaction._id === transactionId
+          );
+
+          return {
+            ...prevDetails,
+            activeTransactions: updatedActiveTransactions,
+            prevTransactions: [
+              ...prevDetails.prevTransactions,
+              movedTransaction,
+            ],
+          };
+        });
+
+        alert("Phiên mượn sách đã được chuyển sang lịch sử!");
+      } catch (err) {
+        console.error("Lỗi khi chuyển phiên mượn sách:", err);
+        alert("Đã xảy ra lỗi khi chuyển phiên mượn sách.");
+      }
+    }
+  };
+
   return (
     <div className="container">
-      <h3 className="mt-4 mb-3">Add a Transaction</h3>
+      <h3 className="mt-4 mb-3">Thêm phiên mượn</h3>
+      <Link to="/dashboard@admin/managetransaction">
+        <button className="btn btn-success mb-2">Quản lý phiên mượn</button>
+      </Link>
       <div className="dashboard-title-line"></div>
       <form onSubmit={addTransaction}>
         <label className="form-label" htmlFor="borrowerId">
-          Borrower<span className="text-danger">*</span>
+          Người mượn<span className="text-danger">*</span>
         </label>
         <br />
         <div className="semanticdropdown">
@@ -202,9 +300,9 @@ function AddTransaction() {
           style={borrowerId === "" ? { display: "none" } : {}}
         >
           <tr>
-            <th>Name</th>
-            <th>Issued</th>
-            <th>Reserved</th>
+            <th>Tên người mượn</th>
+            <th>Đã mượn</th>
+            <th>Đặt trước</th>
           </tr>
           <tr>
             <td>{borrowerDetails.username}</td>
@@ -241,12 +339,11 @@ function AddTransaction() {
           style={borrowerId === "" ? { display: "none" } : {}}
         >
           <tr>
-            <th>Book Name</th>
-            <th>Transaction</th>
-            <th>From Date</th>
-            <th>To Date</th>
-            <th>Fine</th>
-            <th>Quản lý</th>
+            <th>Tên sách</th>
+            <th>Phiên mượn</th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Phí muộn</th>
           </tr>
           {borrowerDetails.activeTransactions
             ?.filter((data) => {
@@ -256,7 +353,11 @@ function AddTransaction() {
               return (
                 <tr key={index}>
                   <td>{data.bookName}</td>
-                  <td>{data.transactionType}</td>
+                  <td>
+                    {data.transactionType === "Issued"
+                      ? "Đang mượn"
+                      : "Đặt trước"}
+                  </td>
                   <td>{data.fromDate}</td>
                   <td>{data.toDate}</td>
                   <td>
@@ -272,12 +373,6 @@ function AddTransaction() {
                             86400000
                         ) * 10}
                   </td>
-                  <td>
-                    <button className="btn btn-danger ">Delete</button>
-                    <Link to={`/dashboard@admin/updatebook/${book._id}`}>
-                      <button className="btn btn-primary ms-4">Update</button>
-                    </Link>
-                  </td>
                 </tr>
               );
             })}
@@ -290,7 +385,7 @@ function AddTransaction() {
 
         <div className="mb-3">
           <label className="form-label mt-3" htmlFor="bookName">
-            Book Name<span className="text-danger">*</span>
+            Tên sách<span className="text-danger">*</span>
           </label>
           <br />
           <div className="semanticdropdown">
@@ -301,7 +396,11 @@ function AddTransaction() {
               selection
               options={allBooks}
               value={bookId}
-              onChange={(event, data) => setBookId(data.value)}
+              onChange={async (event, data) => {
+                setBookId(data.value);
+                const bookData = await getBook(data.value);
+                setBookDetails(bookData);
+              }}
               className="form-control"
             />
           </div>
@@ -312,8 +411,18 @@ function AddTransaction() {
           style={bookId === "" ? { display: "none" } : {}}
         >
           <tr>
-            <th>Available Coipes</th>
-            <th>Reserved</th>
+            <th>Số bản copy</th>
+            <th>Đặt trước</th>
+          </tr>
+          <tr>
+            <td>{bookDetails.bookCountAvailable}</td>
+            <td>
+              {
+                bookDetails.transactions?.filter((data) => {
+                  return data.transactionType === "Reserved";
+                }).length
+              }
+            </td>
           </tr>
         </table>
 
@@ -323,7 +432,7 @@ function AddTransaction() {
         ></div>
 
         <label className="form-label" htmlFor="transactionType">
-          Transaction Type<span className="text-danger">*</span>
+          Loại phiên mượn<span className="text-danger">*</span>
         </label>
         <br />
         <div className="semanticdropdown">
@@ -340,7 +449,7 @@ function AddTransaction() {
         <br />
 
         <label className="form-label" htmlFor="from-date">
-          From Date<span className="text-danger">*</span>
+          Ngày bắt đầu<span className="text-danger">*</span>
         </label>
         <br />
         <DatePicker
@@ -356,7 +465,7 @@ function AddTransaction() {
         />
         <br />
         <label className="form-label mt-3" htmlFor="to-date">
-          To Date<span className="text-danger">*</span>
+          Ngày kết thúc<span className="text-danger">*</span>
         </label>
         <br />
         <DatePicker
@@ -374,31 +483,10 @@ function AddTransaction() {
         <input
           className="form-submit mt-3 btn btn-primary"
           type="submit"
-          value="Submit"
+          value="Thêm"
           disabled={isLoading}
         ></input>
       </form>
-
-      <p className="dashboard-option-title">Recent Transactions</p>
-      <div className="dashboard-title-line"></div>
-      <table className="admindashboard-table">
-        <tr>
-          <th>S.No</th>
-          <th>Book Name</th>
-          <th>Borrower Name</th>
-          <th>Date</th>
-        </tr>
-        {recentTransactions.map((transaction, index) => {
-          return (
-            <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{transaction.bookName}</td>
-              <td>{transaction.borrowerName}</td>
-              <td>{transaction.updatedAt.slice(0, 10)}</td>
-            </tr>
-          );
-        })}
-      </table>
     </div>
   );
 }

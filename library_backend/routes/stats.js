@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import BookTransaction from "../models/BookTransaction.js";
 import User from "../models/User.js";
 import Book from "../models/Book.js";
@@ -67,10 +68,12 @@ router.get("/list-most-active-users", async (req, res) => {
 
     const usersWithDetails = await Promise.all(
       mostActiveUsers.map(async (user) => {
-        const userDetails = await User.findById(user._id);
+        const userDetails = await User.findById(
+          mongoose.Types.ObjectId(user._id)
+        );
         return {
           userId: user._id,
-          userName: userDetails ? userDetails.fullName : "Unknown",
+          username: userDetails.username,
           borrowCount: user.count,
         };
       })

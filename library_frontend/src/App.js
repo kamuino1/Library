@@ -15,7 +15,10 @@ import AdminDashboard from "./Pages/Dashboard/AdminDashboard/AdminDashboard.js";
 import AddBook from "./Pages/Dashboard/AdminDashboard/Components/Books/AddBook.js";
 import UpdateBook from "./Pages/Dashboard/AdminDashboard/Components/Books/UpdateBook.js";
 import ManageBook from "./Pages/Dashboard/AdminDashboard/Components/Books/ManageBook.js";
-import AddTransaction from "./Pages/Dashboard/AdminDashboard/Components/AddTransaction";
+import AddTransaction from "./Pages/Dashboard/AdminDashboard/Components/Transaction/AddTransaction.js";
+import UpdateTransaction from "./Pages/Dashboard/AdminDashboard/Components/Transaction/UpdateTransaction.js";
+import ManageTransaction from "./Pages/Dashboard/AdminDashboard/Components/Transaction/ManageTransaction.js";
+import Stats from "./Pages/Dashboard/AdminDashboard/Components/Stats.js";
 import AddMember from "./Pages/Dashboard/AdminDashboard/Components/AddMember";
 import GetMember from "./Pages/Dashboard/AdminDashboard/Components/GetMember";
 import Return from "./Pages/Dashboard/AdminDashboard/Components/Return";
@@ -79,6 +82,12 @@ function App() {
             <Route path="addbook" element={<AddBook />} />
             <Route path="updatebook/:id" element={<UpdateBook />} />
             <Route path="addtransaction" element={<AddTransaction />} />
+            <Route
+              path="update-transaction/:id"
+              element={<UpdateTransaction />}
+            />
+            <Route path="managetransaction" element={<ManageTransaction />} />
+            <Route path="stats" element={<Stats />} />
             <Route path="addmember" element={<AddMember />} />
             <Route path="getmember" element={<GetMember />} />
             <Route path="returntransaction" element={<Return />} />

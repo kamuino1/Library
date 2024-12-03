@@ -19,7 +19,6 @@ function AddBook() {
   const [publisher, setPublisher] = useState("");
   const [allCategories, setAllCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [recentAddedBooks, setRecentAddedBooks] = useState([]);
 
   /* Fetch all the Categories */
   useEffect(() => {
@@ -59,10 +58,6 @@ function AddBook() {
         API_URL + "api/books/addbook",
         BookData
       );
-      if (recentAddedBooks.length >= 5) {
-        recentAddedBooks.splice(-1);
-      }
-      setRecentAddedBooks([response.data, ...recentAddedBooks]);
       setBookName("");
       setAuthor("");
       setBookCountAvailable(null);
@@ -77,27 +72,19 @@ function AddBook() {
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    const getallBooks = async () => {
-      const response = await axios.get(API_URL + "api/books/allbooks");
-      setRecentAddedBooks(response.data.slice(0, 5));
-    };
-    getallBooks();
-  }, [API_URL]);
-
   return (
     <div>
-      <p className="dashboard-option-title">Add a Book</p>
+      <p className="dashboard-option-title">Thêm sách</p>
       <div className="mt-3 mb-3 d-flex">
         <Link to="/dashboard@admin/managebook">
-          <button className="add-book-button ml-3">Manage Books</button>
+          <button className="add-book-button ml-3">Quản lý sách</button>
         </Link>
       </div>
       <div className="dashboard-title-line"></div>
       <form className="addbook-form" onSubmit={addBook}>
         <div className="mb-3">
           <label className="form-label" htmlFor="bookName">
-            Book Name<span className="required-field">*</span>
+            Tên sách<span className="required-field">*</span>
           </label>
           <input
             className="form-control"
@@ -113,7 +100,7 @@ function AddBook() {
 
         <div className="mb-3">
           <label className="form-label" htmlFor="author">
-            Author Name<span className="required-field">*</span>
+            Tên tác giả<span className="required-field">*</span>
           </label>
           <input
             className="form-control"
@@ -128,14 +115,14 @@ function AddBook() {
         </div>
 
         <div className="mb-3">
-          <label className="form-label" htmlFor="author">
+          <label className="form-label" htmlFor="photo_url">
             Photo Url
           </label>
           <input
             className="form-control"
             type="text"
-            name="author"
-            value={author}
+            name="photo_url"
+            value={photo_url}
             onChange={(e) => {
               setPhotoUrl(e.target.value);
             }}
@@ -144,7 +131,7 @@ function AddBook() {
 
         <div className="mb-3">
           <label className="form-label" htmlFor="language">
-            Language
+            Ngôn ngữ
           </label>
           <input
             className="form-control"
@@ -159,7 +146,7 @@ function AddBook() {
 
         <div className="mb-3">
           <label className="form-label" htmlFor="publisher">
-            Publisher
+            Nhà xuất bản
           </label>
           <input
             className="form-control"
@@ -174,7 +161,7 @@ function AddBook() {
 
         <div className="mb-3">
           <label className="form-label" htmlFor="copies">
-            No. of Copies Available<span className="required-field">*</span>
+            Số bản sao còn lại<span className="required-field">*</span>
           </label>
           <input
             className="form-control"
@@ -190,7 +177,7 @@ function AddBook() {
 
         <div className="mb-3">
           <label className="form-label" htmlFor="categories">
-            Categories<span className="required-field">*</span>
+            Danh mục<span className="required-field">*</span>
           </label>
           <br />
           <Dropdown
@@ -208,32 +195,9 @@ function AddBook() {
         </div>
 
         <button className="btn btn-primary" type="submit" disabled={isLoading}>
-          Submit
+          Thêm sách
         </button>
       </form>
-
-      <div>
-        <p className="dashboard-option-title">Recently Added Books</p>
-        <div className="dashboard-title-line"></div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Book Name</th>
-              <th>Added Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentAddedBooks.map((book, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{book.bookName}</td>
-                <td>{book.createdAt.substring(0, 10)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./AdminDashboard.css";
 
+import PieChartIcon from "@mui/icons-material/PieChart";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import BookIcon from "@mui/icons-material/Book";
 import ReceiptIcon from "@mui/icons-material/Receipt";
@@ -66,14 +67,26 @@ function AdminDashboard() {
             </p>
           </Link>
 
-          <Link to="addtransaction">
+          <Link to="managetransaction">
             <p
               className={`dashboard-option ${
-                active === "addtransaction" ? "clicked" : ""
+                active === "managetransaction" ? "clicked" : ""
               }`}
-              onClick={() => setActive("addtransaction")}
+              onClick={() => setActive("managetransaction")}
             >
-              <ReceiptIcon className="dashboard-option-icon" /> Thêm phiên mượn
+              <ReceiptIcon className="dashboard-option-icon" /> Quản lý phiên
+              mượn
+            </p>
+          </Link>
+          <Link to="stats">
+            <p
+              className={`dashboard-option ${
+                active === "stats" ? "clicked" : ""
+              }`}
+              onClick={() => setActive("stats")}
+            >
+              <PieChartIcon className="dashboard-option-icon" /> Thống kê thư
+              viện
             </p>
           </Link>
 
