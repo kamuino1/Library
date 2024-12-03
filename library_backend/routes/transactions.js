@@ -7,6 +7,7 @@ const router = express.Router();
 /* Thêm phiên mượn sách mới */
 router.post("/add-transaction", async (req, res) => {
   try {
+    console.log(req.body);
     if (req.body.isAdmin) {
       const newTransaction = new BookTransaction({
         bookId: req.body.bookId,
@@ -55,16 +56,31 @@ router.put("/update-transaction/:id", async (req, res) => {
       if (!currentTransaction) {
         return res.status(404).json("Không tìm thấy phiên mượn sách");
       }
+
       const oldBookId = currentTransaction.bookId;
       const newBookId = updatedTransaction.bookId;
 
       if (oldBookId !== newBookId) {
-        await Book.findByIdAndUpdate(oldBookId, {
-          $pull: { transactions: transactionId },
-        });
-        await Book.findByIdAndUpdate(newBookId, {
-          $addToSet: { transactions: transactionId },
-        });
+        const oldBook = await Book.findById(oldBookId);
+        if (!oldBook) {
+          return res.status(404).json("Không tìm thấy cuốn sách cũ");
+        }
+
+        const newBook = await Book.findById(newBookId);
+        if (!newBook) {
+          return res.status(404).json("Không tìm thấy cuốn sách mới");
+        }
+
+        oldBook.bookCountAvailable += 1;
+        newBook.bookCountAvailable -= 1;
+        if (newBook.bookCountAvailable <= 0) {
+          return res.status(403).json("Số lượng sách không đủ");
+        }
+        await oldBook.updateOne({ $pull: { transactions: transactionId } });
+        await newBook.updateOne({ $addToSet: { transactions: transactionId } });
+
+        await oldBook.save();
+        await newBook.save();
       }
 
       await BookTransaction.findByIdAndUpdate(transactionId, {
@@ -97,6 +113,8 @@ router.delete("/remove-transaction/:id", async (req, res) => {
       const book = await Book.findById(transaction.bookId);
       if (book) {
         await book.updateOne({ $pull: { transactions: req.params.id } });
+        book.bookCountAvailable += 1;
+        await book.save();
       }
       res.status(200).json("Phiên mượn sách xóa thành công");
     } catch (err) {

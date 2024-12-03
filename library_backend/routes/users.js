@@ -8,6 +8,7 @@ const router = express.Router();
 router.get("/getuser/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
+      .select("-password -updatedAt")
       .populate("activeTransactions")
       .populate("prevTransactions");
 
@@ -15,8 +16,7 @@ router.get("/getuser/:id", async (req, res) => {
       return res.status(404).json({ error: "Không tìm thấy người dùng" });
     }
 
-    const { password, updatedAt, ...other } = user._doc;
-    res.status(200).json(other);
+    res.status(200).json(user);
   } catch (err) {
     res.status(500).json(err);
   }

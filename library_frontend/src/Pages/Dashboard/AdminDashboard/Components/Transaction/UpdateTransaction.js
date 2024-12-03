@@ -37,7 +37,7 @@ function UpdateTransaction() {
       setTransactionData({
         bookId: transaction.bookId || "",
         bookName: transaction.bookName || "",
-        userId: transaction.userId || "",
+        userId: transaction.userId,
         username: transaction.username || "",
         transactionType: transaction.transactionType || "",
         fromDate: transaction.fromDate ? new Date(transaction.fromDate) : null,

@@ -50,21 +50,22 @@ function AddTransaction() {
 
       /* Checking weather the book is available or not */
       if (
-        (book_details.data.bookCountAvailable > 0 &&
+        (book_details.bookCountAvailable > 0 &&
           (transactionType === "Issued" || transactionType === "Reserved")) ||
-        (book_details.data.bookCountAvailable === 0 &&
+        (book_details.bookCountAvailable === 0 &&
           transactionType === "Reserved")
       ) {
         const transactionData = {
           bookId: bookId,
           userId: borrowerId,
           userName: borrower_details.data.userName,
-          bookName: book_details.data.bookName,
+          bookName: book_details.bookName,
           transactionType: transactionType,
           fromDate: fromDateString,
           toDate: toDateString,
           isAdmin: user.isAdmin,
         };
+        console.log(transactionData);
         try {
           const response = await axios.post(
             API_URL + "api/transactions/add-transaction",
@@ -80,7 +81,7 @@ function AddTransaction() {
           );
           await axios.put(API_URL + "api/books/updatebook/" + bookId, {
             isAdmin: user.isAdmin,
-            bookCountAvailable: book_details.data.bookCountAvailable - 1,
+            bookCountAvailable: book_details.bookCountAvailable - 1,
           });
 
           setBorrowerId("");
